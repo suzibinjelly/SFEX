@@ -44,13 +44,13 @@ pause;
 
 % Load from ex6data1: 
 % You will have X, y in your environment
-load('ex6data1.mat');
+%load('ex6data1.mat');
 
 fprintf('\nTraining Linear SVM ...\n')
 
 % You should try to change the C value below and see how the decision
 % boundary varies (e.g., try C = 1000)
-C = 1;
+C = 10;
 model = svmTrain(X, y, C, @linearKernel, 1e-3, 20);
 visualizeBoundaryLinear(X, y, model);
 
@@ -106,7 +106,7 @@ C = 1; sigma = 0.1;
 % faster. However, in practice, you will want to run the training to
 % convergence.
 model= svmTrain(X, y, C, @(x1, x2) gaussianKernel(x1, x2, sigma)); 
-visualizeBoundary(X, y, model);
+%visualizeBoundary(X, y, model);
 
 fprintf('Program paused. Press enter to continue.\n');
 pause;
@@ -143,7 +143,7 @@ load('ex6data3.mat');
 
 % Train the SVM
 model= svmTrain(X, y, C, @(x1, x2) gaussianKernel(x1, x2, sigma));
-visualizeBoundary(X, y, model);
+%visualizeBoundary(X, y, model);
 
 fprintf('Program paused. Press enter to continue.\n');
 pause;
