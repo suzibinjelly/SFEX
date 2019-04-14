@@ -1,37 +1,80 @@
+%% Initialization
 clear ; close all; clc
 
-fprintf('Loading and Visualizing Data ...\n')
+%% ==================== Part 1: Email Preprocessing ====================
+%  To use an SVM to classify emails into Spam v.s. Non-Spam, you first need
+%  to convert each email into a vector of features. In this part, you will
+%  implement the preprocessing steps for each email. You should
+%  complete the code in processEmail.m to produce a word indices vector
+%  for a given email.
 
-% Load from ex6data2: 
-% You will have X, y in your environment
-load('ex6data2.mat');
-X=X(60:100,:);
-y=y(60:100);
+fprintf('\nPreprocessing sample email (emailSample1.txt)\n');
 
-% Plot training data
-plotData(X, y);
+% Extract Features
+file_contents = readFile('emailSample1.txt');
+word_indices  = processEmail(file_contents);
+
+% Print Stats
+fprintf('Word Indices: \n');
+fprintf(' %d', word_indices);
+fprintf('\n\n');
 
 fprintf('Program paused. Press enter to continue.\n');
 pause;
 
-%% ========== Part 5: Training SVM with RBF Kernel (Dataset 2) ==========
-%  After you have implemented the kernel, we can now use it to train the 
-%  SVM classifier.
-% 
-fprintf('\nTraining SVM with RBF Kernel (this may take 1 to 2 minutes) ...\n');
+%% ==================== Part 2: Feature Extraction ====================
+%  Now, you will convert each email into a vector of features in R^n. 
+%  You should complete the code in emailFeatures.m to produce a feature
+%  vector for a given email.
 
-% Load from ex6data2: 
-% You will have X, y in your environment
-%load('ex6data2.mat');
+fprintf('\nExtracting features from sample email (emailSample1.txt)\n');
 
-% SVM Parameters
-C = 1; sigma = 0.1;
+% Extract Features
+file_contents = readFile('emailSample1.txt');
+word_indices  = processEmail(file_contents);
+features      = emailFeatures(word_indices);
 
-% We set the tolerance and max_passes lower here so that the code will run
-% faster. However, in practice, you will want to run the training to
-% convergence.
-model= svmTrain(X, y, C, @(x1, x2) gaussianKernel(x1, x2, sigma)); 
-visualizeBoundary(X, y, model);
+% Print Stats
+fprintf('Length of feature vector: %d\n', length(features));
+fprintf('Number of non-zero entries: %d\n', sum(features > 0));
 
 fprintf('Program paused. Press enter to continue.\n');
+pause;
+
+%% =========== Part 3: Train Linear SVM for Spam Classification ========
+%  In this section, you will train a linear classifier to determine if an
+%  email is Spam or Not-Spam.
+
+% Load the Spam Email dataset
+% You will have X, y in your environment
+load('spamTrain.mat');
+
+fprintf('\nTraining Linear SVM (Spam Classification)\n')
+fprintf('(this may take 1 to 2 minutes) ...\n')
+
+C = 0.1;
+model = svmTrain(X, y, C, @linearKernel);
+
+p = svmPredict(model, X);
+
+a=mean(double(p == y)) * 100;
+
+fprintf('Training Accuracy: %f\n', a);
+
+%% =================== Part 4: Test Spam Classification ================
+%  After training the classifier, we can evaluate it on a test set. We have
+%  included a test set in spamTest.mat
+
+% Load the test dataset
+% You will have Xtest, ytest in your environment
+load('spamTest.mat');
+
+fprintf('\nEvaluating the trained Linear SVM on a test set ...\n')
+
+p = svmPredict(model, Xtest);
+
+b=mean(double(p == ytest)) * 100;
+
+fprintf('Test Accuracy: %f\n', b);
+fprintf('Train: %f\nTest: %f\n',a,b);
 pause;
